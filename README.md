@@ -4,11 +4,9 @@ Python scripts for automating Jira ticket management and status tracking.
 
 ## Setup
 
-1. **Install dependencies:**
+1. **Install dependencies** with [uv](https://docs.astral.sh/uv/):
    ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   pip install jira python-dotenv
+   uv sync
    ```
 
 2. **Configure environment variables:**
@@ -18,12 +16,12 @@ Python scripts for automating Jira ticket management and status tracking.
 
 ## Scripts
 
-### `ticket_status.py`
+### `jira_status.py`
 Displays all your tickets grouped by status for the current sprint.
 
 **Usage:**
 ```bash
-python ticket_status.py
+uv run python jira_status.py
 ```
 
 **Output:**
@@ -31,7 +29,7 @@ python ticket_status.py
 - Displays count for each status
 - Lists ticket keys and summaries
 
-### `daily_ticket_updates.py`
+### `jira_updates.py`
 Automates daily ticket management tasks.
 
 **Features:**
@@ -41,7 +39,7 @@ Automates daily ticket management tasks.
 **Usage:**
 ```bash
 # Preview mode (shows what would happen without making changes)
-python daily_ticket_updates.py
+uv run python jira_updates.py
 
 # To actually make changes, edit the file and set:
 MAKE_TICKET_UPDATES = True
@@ -58,17 +56,19 @@ TICKETS_TO_QUEUE = [
 
 ## Files
 
-### Main Scripts
-- `ticket_status.py` - View tickets by status
-- `daily_ticket_updates.py` - Automate daily ticket updates
+### Entry points
+- `jira` - launcher for the main menu (`./jira`)
+- `jira_main.py` - main menu linking the three tools below
+- `jira_updates.py` - daily ticket updates
+- `jira_time.py` - view and log time
+- `jira_status.py` - tickets grouped by status
 
-### Library Modules (in `jira_lib/` package)
-- `jira_lib/jira_api.py` - Jira connection and querying functions
-- `jira_lib/jira_actions.py` - Functions for modifying tickets (comments, transitions)
-- `jira_lib/jira_display.py` - Display and formatting functions
-- `jira_lib/ticket_workflows.py` - High-level workflow functions for daily updates
-- `config.py` - Configuration loader for environment variables
-- `jira_helpers.py` - *(Deprecated)* Backward compatibility wrapper
+### Modules
+- `jira_lib/` - Jira connection, queries, worklogs and session
+- `controllers/` - business logic for status, time and workflow (no printing)
+- `ui/` - terminal views, menus and formatting
+- `config.py` - configuration loaded from environment variables
+- `tests/` - offline tests for the pure helpers
 
 ### Configuration
 - `.env` - Your credentials (DO NOT COMMIT)
@@ -82,10 +82,19 @@ TICKETS_TO_QUEUE = [
 | `JIRA_URL` | Your Jira instance URL | `https://your-domain.atlassian.net` |
 | `JIRA_EMAIL` | Your Jira email | `you@example.com` |
 | `JIRA_API_TOKEN` | Your API token | Generated from Atlassian |
-| `SPRINT_NAME` | Sprint to filter by | `Sprint 23` or leave empty for all open sprints |
+| `SPRINT_NAME` | Sprint to filter by | `Sprint 23`, or leave unset to use the active sprint |
 
 ## Security
 
 ⚠️ **Never commit your `.env` file!** It contains sensitive credentials.
 
 The `.gitignore` file is configured to exclude `.env` automatically.
+
+## Development
+
+```bash
+uv run pytest -q
+```
+
+The tests cover the offline helpers (time validation and formatting, and
+which frequent tickets are offered). Nothing in the suite talks to Jira.

@@ -10,14 +10,21 @@ Provides access to:
 
 import sys
 import subprocess
+from pathlib import Path
 from ui import print_header, print_menu_item, prompt, Colors
 
 
+HERE = Path(__file__).resolve().parent
+
+
 def run_script(script_name):
-    """Run a Python script in the virtual environment."""
-    venv_python = '.venv/bin/python'
+    """Run a sibling script with the interpreter running this menu.
+
+    sys.executable rather than a hardcoded '.venv/bin/python', and an absolute
+    path, so the menu works under `uv run` and from any working directory.
+    """
     try:
-        subprocess.run([venv_python, script_name], check=True)
+        subprocess.run([sys.executable, str(HERE / script_name)], check=True, cwd=HERE)
     except subprocess.CalledProcessError as e:
         print(f"\n[ERROR] Error running {script_name}")
         print(f"Details: {str(e)}")
