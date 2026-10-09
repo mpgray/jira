@@ -98,3 +98,7 @@ uv run pytest -q
 
 The tests cover the offline helpers (time validation and formatting, and
 which frequent tickets are offered). Nothing in the suite talks to Jira.
+
+## License
+
+MIT

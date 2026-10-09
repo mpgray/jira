@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run pytest -q
+      # The menu scripts are run as separate processes, so a broken import in
+      # one only shows up when someone picks it from the menu. Catch it here.
+      - name: Import every entry point
+        run: uv run python -c "import jira_main, jira_status, jira_time, jira_updates"
